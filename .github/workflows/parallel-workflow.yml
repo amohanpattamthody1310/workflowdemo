@@ -61,7 +61,15 @@ jobs:
           run: echo "Debug is enabled"
 
   post-build-actions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu
+    strategy:
+          matrix: 
+            node-version: [14,16,18]
+            platform: [macos-latest, ubuntu-latest]
+            exclude:
+                - platform: macos-latest
+                  node-version: 14
+          fail-fast: false
     needs: [build-and-test1, build-and-test2]
     steps:
         - name: Publish test results
