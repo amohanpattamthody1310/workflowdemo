@@ -1,0 +1,78 @@
+name: Parallel work flow
+on: 
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 5 * * 1-5'
+jobs: 
+  build-and-test1:
+    runs-on: ubuntu-latest
+    steps:
+       - name: Checkout code
+         uses: actions/checkout@v3
+
+       - name: Setup Node.js
+         uses: actions/setup-node@v3
+         with: 
+            node-version: latest
+
+       - name: Print a message for main branch
+         if: github.ref == 'refs/heads/main'
+         run: echo "This is the main branch"
+
+       - name: Print a message for non-main branch
+         if: github.ref != 'refs/heads/main'
+         run: echo "This is not the main branch"
+
+       - name: Runs test
+         run: npm test
+
+       - name: Debug message
+         if: env.DEBUG =='true'
+         run: echo "Debugging is enabled"
+
+  build-and-test2:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v3
+          with: 
+            node-version: latest
+
+        - name: Print a message for main branch
+          if: github.ref == 'refs/heads/main'
+          run: echo "This is the main branch"
+
+        - name: Print a message for non-main branch
+          if: github.ref != 'refs/heads/main'
+          run: echo "This is not the main branch"
+
+        - name: Run Tests
+          run: npm test
+
+        - name: Debug message
+          if: env.DEBUG=='true'
+          run: echo "Debug is enabled"
+
+  post-build-actions:
+    runs-on: ubuntu-latest
+    needs: [build-and-test1, build-and-test2]
+    steps:
+        - name: Publish test results
+          uses: actions/upload-artifact@v3
+          with:
+
+            name: test-results
+            path: test-results.xml
+
+
+
+
+
+    
